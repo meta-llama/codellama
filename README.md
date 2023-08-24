@@ -50,7 +50,7 @@ The Code Llama and Code Llama - Python models are not fine-tuned to follow instr
 See `example_completion.py` for some examples. To illustrate, see command below to run it with the `CodeLlama-7b` model (`nproc_per_node` needs to be set to the `MP` value):
 
 ```
-torchrun --nproc_per_node 1 example_code_completion.py \
+torchrun --nproc_per_node 1 example_completion.py \
     --ckpt_dir CodeLlama-7b/ \
     --tokenizer_path CodeLlama-7b/tokenizer.model \
     --max_seq_len 128 --max_batch_size 4

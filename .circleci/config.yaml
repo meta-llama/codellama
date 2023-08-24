@@ -1,0 +1,45 @@
+version: 2.1
+
+jobs:
+  check_python_format:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: "Check format of .py with ufmt"
+          command: |
+            pip install black==22.12.0
+            pip install usort==1.0.5
+            pip install ufmt==2.0.1
+            ufmt check .
+  check_type_annotation:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "dev-requirements.txt" }}
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            pip install -r dev-requirements.txt
+      - run:
+          name: "mypy"
+          command: |
+            . venv/bin/activate
+            mkdir .mypy_cache
+            mypy --install-types --non-interactive ./ --cache-dir=.mypy_cache/
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "dev-requirements.txt" }}
+
+workflows:
+  frontend:
+    jobs:
+      - check_python_format

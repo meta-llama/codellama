@@ -248,6 +248,8 @@ def write_model(model_path, input_base_path, model_size, safe_serialization=True
         rms_norm_eps=params["norm_eps"],
         num_key_value_heads=num_key_value_heads,
         vocab_size=32016 #hack
+        rope_theta=1000000,
+        max_position_embeddings=16384
     )
     config.save_pretrained(tmp_model_path)
 

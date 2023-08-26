@@ -14,7 +14,13 @@ This repository is intended as a minimal example to load [Code Llama](https://ai
 
 In order to download the model weights and tokenizers, please visit the [Meta AI website](https://ai.meta.com/resources/models-and-libraries/llama-downloads/) and accept our License.
 
-Once your request is approved, you will receive a signed URL over email. Then run the download.sh script, passing the URL provided when prompted to start the download. Make sure that you copy the URL text itself, **do not use the 'Copy link address' option** when you right click the URL. If the copied URL text starts with: https://download.llamameta.net, you copied it correctly. If the copied URL text starts with: https://l.facebook.com, you copied it the wrong way.
+✅ Once your request is approved, you will receive a signed URL over email.
+<img src="media/MAILDEMO.jpg" width="720">
+
+Then run the download.sh script, passing the URL provided when prompted to start the download.
+
+<img src="media/rubash.jpg" width="720">
+Make sure that you copy the URL text itself, **do not use the 'Copy link address' option** when you right click the URL. If the copied URL text starts with: https://download.llamameta.net, you copied it correctly. If the copied URL text starts with: https://l.facebook.com, you copied it the wrong way.
 
 Pre-requisites: make sure you have `wget` and `md5sum` installed. Then to run the script: `bash download.sh`.
 

@@ -367,14 +367,15 @@ class Llama:
 
 
 def sample_top_p(probs, p):
-    probs_sort, probs_idx = torch.sort(probs, dim=-1, descending=True)
-    probs_sum = torch.cumsum(probs_sort, dim=-1)
-    mask = probs_sum - probs_sort > p
-    probs_sort[mask] = 0.0
-    probs_sort.div_(probs_sort.sum(dim=-1, keepdim=True))
-    next_token = torch.multinomial(probs_sort, num_samples=1)
-    next_token = torch.gather(probs_idx, -1, next_token)
+    sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+    mask = cumulative_probs > p
+    mask_shifted = torch.cat((mask[:, 1:], mask[:, -1:]), dim=-1)
+    sorted_probs[mask] = 0.0
+    selected_indices = torch.where(mask_shifted, sorted_indices, torch.tensor(-1, device=probs.device))
+    next_token = selected_indices.argmax(dim=-1)
     return next_token
+
 
 
 def infilling_prompt_tokens(

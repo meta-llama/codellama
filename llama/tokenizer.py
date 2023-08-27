@@ -29,6 +29,13 @@ class Tokenizer:
         self.middle_id: Optional[int] = self.sp_model.piece_to_id("▁<MID>") or None
         self.suffix_id: Optional[int] = self.sp_model.piece_to_id("▁<SUF>") or None
         self.eot_id: Optional[int] = self.sp_model.piece_to_id("▁<EOT>") or None
+        # Cache the IDs of special tokens in a dictionary for faster lookup
+        self.special_token_ids = {
+            "<PRE>": self.prefix_id,
+            "<MID>": self.middle_id,
+            "<SUF>": self.suffix_id,
+            "<EOT>": self.eot_id
+        }
         logger.info(
             f"#words: {self.n_words} - BOS ID: {self.bos_id} - EOS ID: {self.eos_id} "
             f"- PRE ID: {self.prefix_id} - MID ID: {self.middle_id} - SUF ID: {self.suffix_id} - EOT ID: {self.eot_id}"
@@ -54,3 +61,6 @@ class Tokenizer:
     def decode_infilling(self, t: List[int]) -> str:
         """Decode a string without an implicit leading space."""
         return self.sp_model.decode([self.sp_model.piece_to_id("☺")] + t)[1:]
+    def get_special_token_id(self, token: str) -> Optional[int]:
+        """Get the ID of a special token from the cache."""
+        return self.special_token_ids.get(token, None)

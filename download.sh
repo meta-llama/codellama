@@ -56,6 +56,13 @@ do
     wget ${PRESIGNED_URL/'*'/"${MODEL_PATH}/params.json"} -O ${TARGET_FOLDER}"/${MODEL_PATH}/params.json"
     wget ${PRESIGNED_URL/'*'/"${MODEL_PATH}/tokenizer.model"} -O ${TARGET_FOLDER}"/${MODEL_PATH}/tokenizer.model"
     wget ${PRESIGNED_URL/'*'/"${MODEL_PATH}/checklist.chk"} -O ${TARGET_FOLDER}"/${MODEL_PATH}/checklist.chk"
+
     echo "Checking checksums"
-    (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5sum -c checklist.chk)
+    CPU_ARCH=$(uname -m)
+    if [ "$CPU_ARCH" = "arm64" ]; then
+      echo "User is using a Mac (Apple Silicon)"
+      (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5 checklist.chk)
+    else
+      (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5sum -c checklist.chk)
+    fi
 done

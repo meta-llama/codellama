@@ -8,10 +8,11 @@ PRESIGNED_URL=''
 if [[ $PRESIGNED_URL == "" ]]; then
     read -p "Enter the URL from email: " PRESIGNED_URL
 fi
-
 echo ""
+
+# Fill this in if you wish
+MODEL_SIZE=''
 ALL_MODELS="7b,13b,34b,7b-Python,13b-Python,34b-Python,7b-Instruct,13b-Instruct,34b-Instruct"
-MODEL_SIZE='7b,7b-Python,13b-Python,34b-Python,7b-Instruct,34b-Instruct'
 if [[ $MODEL_SIZE == "" ]]; then
     read -p "Enter the list of models to download without spaces ($ALL_MODELS), or press Enter for all: " MODEL_SIZE
     if [[ $MODEL_SIZE == "" ]]; then

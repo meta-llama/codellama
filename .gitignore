@@ -1,3 +1,8 @@
+# terraform created files
+.terraform
+.terraform.lock*
+terraform.tfstate*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -7,7 +7,7 @@ We are unlocking the power of large language models and our latest version of Co
 This repository is intended as a minimal example to load [Code Llama](https://ai.meta.com/research/publications/code-llama-open-foundation-models-for-code/) models and run inference.
 
 
-[comment]: <> (Code Llama models are compatible with the scripts in llama-recipes)
+[comment]: <> "Code Llama models are compatible with the scripts in llama-recipes"
 
 
 ## Download
@@ -20,7 +20,7 @@ Pre-requisites: make sure you have `wget` and `md5sum` installed. Then to run th
 
 Keep in mind that the links expire after 24 hours and a certain amount of downloads. If you start seeing errors such as `403: Forbidden`, you can always re-request a link.
 
-[comment]: <> (Access on Hugging Face, We are also providing downloads on Hugging Face. You must first request a download from the Meta AI website using the same email address as your Hugging Face account. After doing so, you can request access to any of the models on Hugging Face and within 1-2 days your account will be granted access to all versions.)
+[comment]: <> "Access on Hugging Face, We are also providing downloads on Hugging Face. You must first request a download from the Meta AI website using the same email address as your Hugging Face account. After doing so, you can request access to any of the models on Hugging Face and within 1-2 days your account will be granted access to all versions."
 
 ## Setup
 
@@ -109,6 +109,18 @@ See [MODEL_CARD.md](MODEL_CARD.md) for the model card of Code Llama.
 Our model and weights are licensed for both researchers and commercial entities, upholding the principles of openness. Our mission is to empower individuals, and industry through this opportunity, while fostering an environment of discovery and ethical AI advancements.
 
 See the [LICENSE](https://github.com/facebookresearch/llama/blob/main/LICENSE) file, as well as our accompanying [Acceptable Use Policy](https://github.com/facebookresearch/llama/blob/main/USE_POLICY.md)
+
+## Quick Start
+
+Step 1: Download the pretrained model from https://huggingface.co/codellama and save it to `./pretrained_model`.
+
+Step 2: Execute the codellama model quickly by running `start.py`, here's an example:
+
+```
+python start.py -f "./pretrained_model" -s "give me a Python code for bubble sort"
+```
+
+Where `./pretrained_model` is the path to your stored pretrained model, you can replace `give me a Python code for bubble sort` with any code or natural language prompt. It can generate code and natural language related to the code based on your input.
 
 ## References
 

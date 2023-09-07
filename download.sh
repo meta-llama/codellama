@@ -21,12 +21,22 @@ check_prerequisites() {
 
 # Function to log messages with colors
 log() {
-    echo -e "$1"
+    local message="$1"
+    local arrow="➜"
+    echo -e "${YELLOW}${arrow} ${message}${NC}" | sed 's/-e//'
 }
 
 # Function to download a file
 download_file() {
-    wget -c --quiet --show-progress $1 -O $2 &
+    local url=$1
+    local dest=$2
+    local verbose=$3  # Accepts 'true' or 'false'
+    
+    if [ "$verbose" == "true" ]; then
+        wget -c --show-progress $url -O $dest &
+    else
+        wget -c --quiet --show-progress $url -O $dest &
+    fi
 }
 
 # Function to download and verify a model
@@ -35,6 +45,7 @@ download_model() {
     local shard=$2
     local presigned_url=$3
     local target_folder=$4
+	local verbosity=$5
     local model_path="CodeLlama-$model"
 
     log "${YELLOW}📦 Downloading ${model_path}${NC}"
@@ -43,13 +54,13 @@ download_model() {
     for s in $(seq -f "%02g" 0 ${shard})
     do
         log "${YELLOW}   Downloading ${model_path}/consolidated.${s}.pth${NC}"
-        download_file ${presigned_url/'*'/"${model_path}/consolidated.${s}.pth"} ${target_folder}/${model_path}/consolidated.${s}.pth
+        download_file ${presigned_url/'*'/"${model_path}/consolidated.${s}.pth"} ${target_folder}/${model_path}/consolidated.${s}.pth ${verbosity}
     done
     wait
 
-    download_file ${presigned_url/'*'/"${model_path}/params.json"} ${target_folder}/${model_path}/params.json
-    download_file ${presigned_url/'*'/"${model_path}/tokenizer.model"} ${target_folder}/${model_path}/tokenizer.model
-    download_file ${presigned_url/'*'/"${model_path}/checklist.chk"} ${target_folder}/${model_path}/checklist.chk
+    download_file ${presigned_url/'*'/"${model_path}/params.json"} ${target_folder}/${model_path}/params.json ${verbosity}
+    download_file ${presigned_url/'*'/"${model_path}/tokenizer.model"} ${target_folder}/${model_path}/tokenizer.model ${verbosity}
+    download_file ${presigned_url/'*'/"${model_path}/checklist.chk"} ${target_folder}/${model_path}/checklist.chk ${verbosity}
     wait
 
     log "${YELLOW}🔍 Checking checksums for ${model_path}${NC}"
@@ -77,7 +88,20 @@ main() {
 
     log "${YELLOW}📨 Enter the URL from the email: ${NC}"
     read PRESIGNED_URL
-    log ""
+	# Initialize to default verbosity
+	VERBOSE_DOWNLOAD=false
+
+	log "${YELLOW}Would you like to see download progress? (y/n):${NC}"
+	read -r VERBOSE_DOWNLOAD_INPUT
+
+	# Convert input to lowercase
+	VERBOSE_DOWNLOAD_INPUT=$(echo "$VERBOSE_DOWNLOAD_INPUT" | tr '[:upper:]' '[:lower:]')
+
+	if [[ "$VERBOSE_DOWNLOAD_INPUT" == "y" ]]; then
+		VERBOSE_DOWNLOAD=true
+	fi
+
+	
     ALL_MODELS="7b,13b,34b,7b-Python,13b-Python,34b-Python,7b-Instruct,13b-Instruct,34b-Instruct"
     log "${YELLOW}📜 Enter the list of models to download ($ALL_MODELS) example: 7b,13b , or press Enter for all: ${NC}"
     read MODEL_SIZE
@@ -96,8 +120,8 @@ main() {
     fi
 
     log "${YELLOW}📥 Downloading LICENSE and Acceptable Usage Policy ${NC}"
-    download_file ${PRESIGNED_URL/'*'/"LICENSE"} ${TARGET_FOLDER}"/LICENSE"
-    download_file ${PRESIGNED_URL/'*'/"USE_POLICY.md"} ${TARGET_FOLDER}"/USE_POLICY.md"
+    download_file ${PRESIGNED_URL/'*'/"LICENSE"} ${TARGET_FOLDER}"/LICENSE" ${VERBOSE_DOWNLOAD}
+    download_file ${PRESIGNED_URL/'*'/"USE_POLICY.md"} ${TARGET_FOLDER}"/USE_POLICY.md" ${VERBOSE_DOWNLOAD}
     wait
     log "${GREEN}✅ LICENSE and Acceptable Usage Policy downloaded successfully!${NC}"
 
@@ -118,7 +142,7 @@ main() {
                 log "${RED}❌ Unknown model: $m${NC}"
                 exit 1
         esac
-        download_model $m $SHARD $PRESIGNED_URL $TARGET_FOLDER
+        download_model $m $SHARD $PRESIGNED_URL $TARGET_FOLDER ${VERBOSE_DOWNLOAD}
     done
 
     log "${GREEN}========================================="

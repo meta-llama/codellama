@@ -26,7 +26,7 @@ Keep in mind that the links expire after 24 hours and a certain amount of downlo
 |--------|----|
 | 7B     | ~12.55GB  |
 | 13B    | 24GB  |
-| 34B    | ~60GB  |
+| 34B    | 63GB  |
 
 [comment]: <> (Access on Hugging Face, We are also providing downloads on Hugging Face. You must first request a download from the Meta AI website using the same email address as your Hugging Face account. After doing so, you can request access to any of the models on Hugging Face and within 1-2 days your account will be granted access to all versions.)
 

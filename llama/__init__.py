@@ -4,3 +4,4 @@
 from .generation import Llama
 from .model import ModelArgs, Transformer
 from .tokenizer import Tokenizer
+from .xpu_utils import is_xpu_available, is_ccl_available

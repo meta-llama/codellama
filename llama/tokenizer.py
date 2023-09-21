@@ -45,7 +45,7 @@ class Tokenizer:
         return t
 
     def decode(self, t: List[int]) -> str:
-        return self.sp_model.decode(t)
+        return self.sp_model.decode(list(filter(lambda tk: tk != -1, t)))
 
     def encode_infilling(self, s: str) -> List[int]:
         """Encode a string without an implicit leading space."""

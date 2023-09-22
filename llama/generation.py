@@ -19,12 +19,12 @@ from fairscale.nn.model_parallel.initialize import (
 from llama.model import ModelArgs, Transformer
 from llama.tokenizer import Tokenizer
 
-if torch.backends.mps.is_available():
-    device = torch.device('mps')
-elif torch.cuda.is_available():
-    device = torch.device('cuda')
+if torch.cuda.is_available():
+    device = "cuda"
+elif torch.backends.mps.is_available():
+    device = "mps"
 else:
-    device = torch.device('cpu')
+    device = "cpu"
 
 Role = Literal["system", "user", "assistant"]
 
@@ -84,7 +84,6 @@ class Llama:
         local_rank = int(os.environ.get("LOCAL_RANK", 0))
         if device == "cuda":
             torch.cuda.set_device(local_rank)
-
 
         # seed must be the same in all processes
         torch.manual_seed(1)

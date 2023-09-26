@@ -12,7 +12,7 @@ This repository is intended as a minimal example to load [Code Llama](https://ai
 
 ## Download
 
-In order to download the model weights and tokenizers, please visit the [Meta AI website](https://ai.meta.com/resources/models-and-libraries/llama-downloads/) and accept our License.
+In order to download the model weights and tokenizers, please visit the [Meta website](https://ai.meta.com/resources/models-and-libraries/llama-downloads/) and accept our License.
 
 Once your request is approved, you will receive a signed URL over email. Then run the download.sh script, passing the URL provided when prompted to start the download. Make sure that you copy the URL text itself, **do not use the 'Copy link address' option** when you right click the URL. If the copied URL text starts with: https://download.llamameta.net, you copied it correctly. If the copied URL text starts with: https://l.facebook.com, you copied it the wrong way.
 
@@ -28,7 +28,7 @@ Keep in mind that the links expire after 24 hours and a certain amount of downlo
 | 13B    | 24GB  |
 | 34B    | 63GB  |
 
-[comment]: <> (Access on Hugging Face, We are also providing downloads on Hugging Face. You must first request a download from the Meta AI website using the same email address as your Hugging Face account. After doing so, you can request access to any of the models on Hugging Face and within 1-2 days your account will be granted access to all versions.)
+[comment]: <> (Access on Hugging Face, We are also providing downloads on Hugging Face. You must first request a download from the Meta website using the same email address as your Hugging Face account. After doing so, you can request access to any of the models on Hugging Face and within 1-2 days your account will be granted access to all versions.)
 
 ## Setup
 

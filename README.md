@@ -84,7 +84,7 @@ Pretrained infilling models are: the Code Llama models `CodeLlama-7b` and `CodeL
 
 ### Fine-tuned Instruction Models
 
-Code Llama - Instruct models are fine-tuned to follow instructions. To get the expected features and performance for them, a specific formatting defined in [`chat_completion`](https://github.com/facebookresearch/codellama/blob/main/llama/generation.py#L279-L366)
+Code Llama - Instruct models are fine-tuned to follow instructions. To get the expected features and performance for them, a specific formatting defined in [`chat_completion`](https://github.com/facebookresearch/codellama/blob/main/llama/generation.py#L295-L382)
 needs to be followed, including the `INST` and `<<SYS>>` tags, `BOS` and `EOS` tokens, and the whitespaces and linebreaks in between (we recommend calling `strip()` on inputs to avoid double-spaces).
 You can use `chat_completion` directly to generate answers with the instruct model. 
 

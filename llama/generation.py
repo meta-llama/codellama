@@ -69,6 +69,7 @@ class Llama:
         tokenizer_path: str,
         max_seq_len: int,
         max_batch_size: int,
+        pipeline_length: int = 1,
         model_parallel_size: Optional[int] = None,
     ) -> "Llama":
         if not torch.distributed.is_initialized():
@@ -78,8 +79,13 @@ class Llama:
                 torch.distributed.init_process_group("gloo")
         if not model_parallel_is_initialized():
             if model_parallel_size is None:
-                model_parallel_size = int(os.environ.get("WORLD_SIZE", 1))
-            initialize_model_parallel(model_parallel_size)
+                checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
+                model_parallel_size = len(checkpoints)
+                world_size = int(os.environ.get("WORLD_SIZE", 1))
+                assert model_parallel_size <= world_size, f"Loading a checkpoint for MP={model_parallel_size} but world size is {world_size}"
+                assert (model_parallel_size * pipeline_length) <= world_size, f"Requited world size >= {(model_parallel_size * pipeline_length)} but world size is {world_size}"
+
+            initialize_model_parallel(model_parallel_size_=model_parallel_size, pipeline_length=pipeline_length)
 
         local_rank = int(os.environ.get("LOCAL_RANK", 0))
         if device == "cuda":

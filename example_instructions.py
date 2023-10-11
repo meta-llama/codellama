@@ -16,12 +16,16 @@ def main(
     max_seq_len: int = 512,
     max_batch_size: int = 8,
     max_gen_len: Optional[int] = None,
+    model_parallel_size:  Optional[int] = None,
+    pipeline_length: int = 1
 ):
     generator = Llama.build(
         ckpt_dir=ckpt_dir,
         tokenizer_path=tokenizer_path,
         max_seq_len=max_seq_len,
         max_batch_size=max_batch_size,
+        model_parallel_size= model_parallel_size,
+        pipeline_length=  pipeline_length
     )
 
     instructions = [

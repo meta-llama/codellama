@@ -229,7 +229,7 @@ class Llama:
             return [
                 {
                     "generation": self.tokenizer.decode(t),
-                    "tokens": [self.tokenizer.decode(x) for x in t],
+                    "tokens": t,
                     "logprobs": logprobs_i,
                 }
                 for t, logprobs_i in zip(generation_tokens, generation_logprobs)
@@ -364,7 +364,7 @@ class Llama:
                         if not unsafe
                         else UNSAFE_ERROR,
                     },
-                    "tokens": [self.tokenizer.decode(x) for x in t],
+                    "tokens": t,
                     "logprobs": logprobs_i,
                 }
                 for t, logprobs_i, unsafe in zip(

@@ -32,6 +32,7 @@ Role = Literal["system", "user", "assistant"]
 class Message(TypedDict):
     role: Role
     content: str
+    destination: str  # required for model responses
 
 
 class InfillingPrediction(TypedDict, total=False):
@@ -58,7 +59,7 @@ Dialog = List[Message]
 B_INST, E_INST = "[INST]", "[/INST]"
 B_SYS, E_SYS = "<<SYS>>\n", "\n<</SYS>>\n\n"
 
-SPECIAL_TAGS = [B_INST, E_INST, "<<SYS>>", "<</SYS>>"]
+SPECIAL_TAGS = [B_INST, E_INST, "<<SYS>>", "<</SYS>>", "<step>"]
 UNSAFE_ERROR = "Error: special tags are not allowed as part of the prompt."
 
 
@@ -226,10 +227,11 @@ class Llama:
             echo=echo,
         )
         if logprobs:
+            assert generation_logprobs is not None
             return [
                 {
                     "generation": self.tokenizer.decode(t),
-                    "tokens": [self.tokenizer.decode(x) for x in t],
+                    "tokens": [self.tokenizer.token_piece(x) for x in t],
                     "logprobs": logprobs_i,
                 }
                 for t, logprobs_i in zip(generation_tokens, generation_logprobs)
@@ -268,11 +270,12 @@ class Llama:
         generations = [self.tokenizer.decode_infilling(t) for t in generation_tokens]
 
         if logprobs:
+            assert generation_logprobs is not None
             return [
                 {
                     "generation": generation,
                     "logprobs": logprobs_i,
-                    "tokens": t,
+                    "tokens": [self.tokenizer.token_piece(x) for x in t],
                     "full_text": prefix + generation + suffix,
                 }
                 for prefix, suffix, generation, t, logprobs_i in zip(
@@ -300,6 +303,15 @@ class Llama:
         max_gen_len: Optional[int] = None,
         logprobs: bool = False,
     ) -> List[ChatPrediction]:
+        if self.tokenizer.step_id is not None:
+            return self._chat_completion_turns(
+                dialogs=dialogs,
+                temperature=temperature,
+                top_p=top_p,
+                max_gen_len=max_gen_len,
+                logprobs=logprobs,
+            )
+
         if max_gen_len is None:
             max_gen_len = self.model.params.max_seq_len - 1
         prompt_tokens = []
@@ -309,7 +321,7 @@ class Llama:
                 any([tag in msg["content"] for tag in SPECIAL_TAGS for msg in dialog])
             )
             if dialog[0]["role"] == "system":
-                dialog = [
+                dialog = [  # type: ignore
                     {
                         "role": dialog[1]["role"],
                         "content": B_SYS
@@ -327,7 +339,7 @@ class Llama:
             dialog_tokens: List[int] = sum(
                 [
                     self.tokenizer.encode(
-                        f"{B_INST} {(prompt['content']).strip()} {E_INST} {(answer['content']).strip()} ",
+                        f"{B_INST} {prompt['content'].strip()} {E_INST} {answer['content'].strip()} ",
                         bos=True,
                         eos=True,
                     )
@@ -342,7 +354,7 @@ class Llama:
                 dialog[-1]["role"] == "user"
             ), f"Last message must be from user, got {dialog[-1]['role']}"
             dialog_tokens += self.tokenizer.encode(
-                f"{B_INST} {(dialog[-1]['content']).strip()} {E_INST}",
+                f"{B_INST} {dialog[-1]['content'].strip()} {E_INST}",
                 bos=True,
                 eos=False,
             )
@@ -356,15 +368,79 @@ class Llama:
             logprobs=logprobs,
         )
         if logprobs:
+            assert generation_logprobs is not None
             return [
                 {
-                    "generation": {
+                    "generation": {  # type: ignore
                         "role": "assistant",
                         "content": self.tokenizer.decode(t)
                         if not unsafe
                         else UNSAFE_ERROR,
                     },
-                    "tokens": [self.tokenizer.decode(x) for x in t],
+                    "tokens": [self.tokenizer.token_piece(x) for x in t],
+                    "logprobs": logprobs_i,
+                }
+                for t, logprobs_i, unsafe in zip(
+                    generation_tokens, generation_logprobs, unsafe_requests
+                )
+            ]
+        return [
+            {
+                "generation": {  # type: ignore
+                    "role": "assistant",
+                    "content": self.tokenizer.decode(t) if not unsafe else UNSAFE_ERROR,
+                }
+            }
+            for t, unsafe in zip(generation_tokens, unsafe_requests)
+        ]
+
+    def _chat_completion_turns(
+        self,
+        dialogs: List[Dialog],
+        temperature: float = 0.6,
+        top_p: float = 0.9,
+        max_gen_len: Optional[int] = None,
+        logprobs: bool = False,
+    ) -> List[ChatPrediction]:
+        if self.tokenizer.step_id is None:
+            raise RuntimeError("Model not suitable for chat_completion_step()")
+        if max_gen_len is None:
+            max_gen_len = self.model.params.max_seq_len - 1
+
+        prompt_tokens = []
+        unsafe_requests = []
+        for dialog in dialogs:
+            unsafe_requests.append(
+                any([tag in msg["content"] for tag in SPECIAL_TAGS for msg in dialog])
+            )
+
+            # Insert system message if not provided
+            if dialog[0]["role"] != "system":
+                dialog = [{"role": "system", "content": ""}] + dialog  # type: ignore
+
+            dialog_tokens = dialog_prompt_tokens(self.tokenizer, dialog)
+            prompt_tokens.append(dialog_tokens)
+
+        generation_tokens, generation_logprobs = self.generate(
+            prompt_tokens=prompt_tokens,
+            max_gen_len=max_gen_len,
+            temperature=temperature,
+            top_p=top_p,
+            logprobs=logprobs,
+            stop_token=self.tokenizer.step_id,
+        )
+        if logprobs:
+            assert generation_logprobs is not None
+            return [
+                {
+                    "generation": {
+                        "role": "assistant",
+                        "destination": "user",
+                        "content": self.tokenizer.decode(t)
+                        if not unsafe
+                        else UNSAFE_ERROR,
+                    },
+                    "tokens": [self.tokenizer.token_piece(x) for x in t],
                     "logprobs": logprobs_i,
                 }
                 for t, logprobs_i, unsafe in zip(
@@ -375,11 +451,13 @@ class Llama:
             {
                 "generation": {
                     "role": "assistant",
+                    "destination": "user",
                     "content": self.tokenizer.decode(t) if not unsafe else UNSAFE_ERROR,
                 }
             }
             for t, unsafe in zip(generation_tokens, unsafe_requests)
         ]
+
 
 
 def sample_top_p(probs, p):
@@ -423,3 +501,48 @@ def infilling_prompt_tokens(
             + tokenizer.encode_infilling(suf)
             + [tokenizer.middle_id]
         )
+
+
+def dialog_prompt_tokens(tokenizer: Tokenizer, dialog: Dialog) -> List[int]:
+    """
+    Prompt formatting for multi-turn dialogs.
+    The dialog is expected to start with a system message and then alternate
+    between user and assistant messages.
+    """
+    assert tokenizer.step_id is not None
+    assert all([msg["role"] == "user" for msg in dialog[1::2]]) and all(
+        [msg["role"] == "assistant" for msg in dialog[2::2]]
+    ), (
+        "model only supports 'system', 'user' and 'assistant' roles, "
+        "starting with 'system', then 'user' and alternating (u/a/u/a/u...)"
+    )
+    assert (
+        dialog[-1]["role"] == "user"
+    ), f"Last message must be from user, got {dialog[-1]['role']}"
+
+    # Format context
+    dialog_tokens: List[int] = [tokenizer.bos_id]
+    headers: List[str] = []
+    for message in dialog:
+        headers.clear()
+        headers.append(f"Source: {message['role'].strip()}")
+        if message.get("destination") is not None:
+            headers.append(f"Destination: {message['destination'].strip()}")
+        header = " " + "\n".join(headers)
+        dialog_tokens += tokenizer.encode(header, bos=False, eos=False)
+
+        if message["content"]:
+            body = "\n\n " + message["content"].strip()
+            dialog_tokens += tokenizer.encode(body, bos=False, eos=False)
+
+        dialog_tokens += [tokenizer.step_id]
+
+    # Start of reply
+    headers.clear()
+    headers.append("Source: assistant")
+    headers.append("Destination: user")
+    header = " " + "\n".join(headers)
+    dialog_tokens += tokenizer.encode(header, bos=False, eos=False)
+    dialog_tokens += tokenizer.encode("\n\n ", bos=False, eos=False)
+
+    return dialog_tokens

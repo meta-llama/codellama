@@ -29,9 +29,13 @@ class Tokenizer:
         self.middle_id: Optional[int] = self.sp_model.piece_to_id("▁<MID>") or None
         self.suffix_id: Optional[int] = self.sp_model.piece_to_id("▁<SUF>") or None
         self.eot_id: Optional[int] = self.sp_model.piece_to_id("▁<EOT>") or None
+
+        # marker for turn-based step format
+        self.step_id: Optional[int] = self.sp_model.piece_to_id("<step>") or None
+
         logger.info(
             f"#words: {self.n_words} - BOS ID: {self.bos_id} - EOS ID: {self.eos_id} "
-            f"- PRE ID: {self.prefix_id} - MID ID: {self.middle_id} - SUF ID: {self.suffix_id} - EOT ID: {self.eot_id}"
+            f"- PRE ID: {self.prefix_id} - MID ID: {self.middle_id} - SUF ID: {self.suffix_id} - EOT ID: {self.eot_id} - STEP ID: {self.step_id}"
         )
         assert self.sp_model.vocab_size() == self.sp_model.get_piece_size()
 
@@ -46,6 +50,9 @@ class Tokenizer:
 
     def decode(self, t: List[int]) -> str:
         return self.sp_model.decode(list(filter(lambda tk: tk != -1, t)))
+
+    def token_piece(self, t: int) -> str:
+        return self.sp_model.id_to_piece(t)
 
     def encode_infilling(self, s: str) -> List[int]:
         """Encode a string without an implicit leading space."""

@@ -5,7 +5,7 @@
 
 read -p "Enter the URL from email: " PRESIGNED_URL
 echo ""
-ALL_MODELS="7b,13b,34b,7b-Python,13b-Python,34b-Python,7b-Instruct,13b-Instruct,34b-Instruct"
+ALL_MODELS="7b,13b,34b,70b,7b-Python,13b-Python,34b-Python,70b-Python,7b-Instruct,13b-Instruct,34b-Instruct,70b-Instruct"
 read -p "Enter the list of models to download without spaces ($ALL_MODELS), or press Enter for all: " MODEL_SIZE
 TARGET_FOLDER="."             # where all files should end up
 mkdir -p ${TARGET_FOLDER}
@@ -27,18 +27,24 @@ do
         SHARD=1 ;;
       34b)
         SHARD=3 ;;
+      70b)
+        SHARD=7 ;;
       7b-Python)
         SHARD=0 ;;
       13b-Python)
         SHARD=1 ;;
       34b-Python)
         SHARD=3 ;;
+      70b-Python)
+        SHARD=7 ;;
       7b-Instruct)
         SHARD=0 ;;
       13b-Instruct)
         SHARD=1 ;;
       34b-Instruct)
         SHARD=3 ;;
+      70b-Instruct)
+        SHARD=7 ;;
       *)
         echo "Unknown model: $m"
         exit 1

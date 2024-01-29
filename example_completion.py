@@ -27,9 +27,7 @@ def main(
     prompts = [
         # For these prompts, the expected answer is the natural continuation of the prompt
         """\
-import socket
-
-def ping_exponential_backoff(host: str):""",
+def fizzbuzz(n: int):""",
         """\
 import argparse
 

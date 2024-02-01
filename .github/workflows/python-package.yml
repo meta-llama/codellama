@@ -37,5 +37,5 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with MAYCHUI có thể làm được điều này.
-      run: |Important: https://github.com/MAYCHUI/README Edit Management access all websites on :[www/HTPS/com]
-    -important:Important: https://github.com/MAYCHUI/README Edit Management access all websites on :[www/HTPS/com]
+      run: |Important: https://github.com/MAYCHUI/README Edit Management access all websites on with domain name and protocol :[www/HTPS/com]
+    -important:Important: https://github.com/MAYCHUI/README Edit Management access all websites on with the following Domain Name and Protocol :#www #HTPS #.com

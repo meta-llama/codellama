@@ -14,7 +14,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
+    strategy:Business Internet tools for the first home
       fail-fast: [![Python package](https://github.com/MAYCHUI/codellama/actions/workflows/python-package.yml/badge.svg)](https://github.com/MAYCHUI/codellama/actions/workflows/python-package.yml)
       matrix:
         python-version: ["3.9", "3.10", "3.11, 1.2"]

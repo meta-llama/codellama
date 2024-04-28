@@ -1,0 +1,3 @@
+black==24.4.2
+usort==1.0.8.post1
+ufmt==2.5.1

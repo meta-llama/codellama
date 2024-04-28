@@ -1,11 +1,13 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates.
 # This software may be used and distributed according to the terms of the Llama 2 Community License Agreement.
 
+from pkg_resources import parse_requirements
 from setuptools import find_packages, setup
 
 
 def get_requirements(path: str):
-    return [l.strip() for l in open(path)]
+    with open(path) as requirements:
+        return [r.project_name for r in parse_requirements(requirements)]
 
 
 setup(

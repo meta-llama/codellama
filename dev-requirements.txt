@@ -1,4 +1,4 @@
-black==22.12.0
+black==24.3.0
 usort==1.0.5
 ufmt==2.0.1
 mypy==1.3.0

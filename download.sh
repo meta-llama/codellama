@@ -18,6 +18,9 @@ echo "Downloading LICENSE and Acceptable Usage Policy"
 wget --continue ${PRESIGNED_URL/'*'/"LICENSE"} -O ${TARGET_FOLDER}"/LICENSE"
 wget --continue ${PRESIGNED_URL/'*'/"USE_POLICY.md"} -O ${TARGET_FOLDER}"/USE_POLICY.md"
 
+# Determine the architecture for macOS specific command
+CPU_ARCH=$(uname -m)
+
 for m in ${MODEL_SIZE//,/ }
 do
     case $m in
@@ -63,5 +66,9 @@ do
     wget --continue ${PRESIGNED_URL/'*'/"${MODEL_PATH}/tokenizer.model"} -O ${TARGET_FOLDER}"/${MODEL_PATH}/tokenizer.model"
     wget --continue ${PRESIGNED_URL/'*'/"${MODEL_PATH}/checklist.chk"} -O ${TARGET_FOLDER}"/${MODEL_PATH}/checklist.chk"
     echo "Checking checksums"
-    (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5sum -c checklist.chk)
+    if [ "$CPU_ARCH" = "arm64" ]; then
+      (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5 checklist.chk)
+    else
+      (cd ${TARGET_FOLDER}"/${MODEL_PATH}" && md5sum -c checklist.chk)
+    fi
 done

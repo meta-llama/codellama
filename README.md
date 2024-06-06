@@ -52,6 +52,8 @@ Different models require different model-parallel (MP) values:
 
 All models, except the 70B python and instruct versions, support sequence lengths up to 100,000 tokens, but we pre-allocate the cache according to `max_seq_len` and `max_batch_size` values. So set those according to your hardware and use-case.
 
+You can also find the Hugging Face transformers-format checkpoints in the [Community Code Llama organization(https://huggingface.co/codellama).
+
 ### Pretrained Code Models
 
 The Code Llama and Code Llama - Python models are not fine-tuned to follow instructions. They should be prompted so that the expected answer is the natural continuation of the prompt.
